@@ -44,9 +44,10 @@ CREATE POLICY "Public linguist profiles visible to authenticated users"
         AND (
             profile_visibility = 'public'
             OR (profile_visibility = 'verified_only' AND EXISTS (
-                SELECT 1 FROM public.agency_profiles
-                WHERE user_id = auth.uid()
-                AND verification_status = 'verified'
+                SELECT 1 FROM public.agency_profiles ap
+                JOIN public.users u ON ap.user_id = u.id
+                WHERE u.id = auth.uid()
+                AND u.verification_status = 'verified'
             ))
             OR user_id = auth.uid()
         )
@@ -77,7 +78,11 @@ CREATE POLICY "Agencies visible to authenticated users"
     USING (
         auth.role() = 'authenticated'
         AND (
-            verification_status = 'verified'
+            EXISTS (
+                SELECT 1 FROM public.users u
+                WHERE u.id = user_id
+                AND u.verification_status = 'verified'
+            )
             OR profile_visibility = 'public'
             OR user_id = auth.uid()
         )
@@ -178,9 +183,10 @@ CREATE POLICY "Connected parties view shared documents"
                 )
             ))
             OR (visibility = 'verified_agencies' AND EXISTS (
-                SELECT 1 FROM public.agency_profiles
-                WHERE user_id = auth.uid()
-                AND verification_status = 'verified'
+                SELECT 1 FROM public.agency_profiles ap
+                JOIN public.users u ON ap.user_id = u.id
+                WHERE u.id = auth.uid()
+                AND u.verification_status = 'verified'
             ))
         )
     );
