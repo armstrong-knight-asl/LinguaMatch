@@ -1,5 +1,13 @@
 # LinguaMatch Setup Instructions
 
+## 📋 Project Overview
+
+LinguaMatch is a two-sided marketplace connecting professional linguists with agencies. The stack includes:
+- **Frontend:** React + TypeScript + Vite + Tailwind CSS
+- **Backend:** Supabase (PostgreSQL + Auth + Storage + Realtime)
+- **Deployment:** Google Cloud Run
+- **CI/CD:** GitHub Actions
+
 ## ✅ Completed Setup
 
 1. **Supabase Project Created**
@@ -14,35 +22,47 @@
    - `.env.example` created for team reference
    - `.gitignore` updated to protect sensitive files
 
-3. **Database Migrations Created**
+3. **Database Migrations Created & Executed ✅**
    - `supabase/migrations/001_initial_schema.sql` - Core database schema
    - `supabase/migrations/002_row_level_security.sql` - RLS policies
+   - All 12 tables created successfully
+   - Row-Level Security enabled with 41 policies
 
-## 🔧 Next Steps: Run Database Migrations
+4. **Google Cloud Platform Configuration**
+   - Deployment scripts created in `gcp/` directory
+   - GitHub Actions workflows for CI/CD
+   - Dockerfile and nginx configuration ready
+   - See `GCP_SETUP.md` for detailed instructions
 
-### Option 1: Supabase Dashboard (Recommended)
+## 🔧 Next Steps
 
-1. Go to your Supabase project: https://supabase.com/dashboard/project/cdnalhpkmzbuneywdsth
-2. Click on **SQL Editor** in the left sidebar
-3. Create a new query
-4. Copy the contents of `supabase/migrations/001_initial_schema.sql`
-5. Paste and click **Run**
-6. Create another new query
-7. Copy the contents of `supabase/migrations/002_row_level_security.sql`
-8. Paste and click **Run**
+### Step 1: Create Google Cloud Project
 
-### Option 2: Using Supabase CLI (When Available)
+See `GCP_SETUP.md` for detailed instructions. Quick steps:
 
-```bash
-# Login to Supabase
-supabase login
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create new project: `googlecloud-lingua-match`
+3. Note the Project ID
+4. Run setup scripts:
+   ```bash
+   gcloud config set project YOUR_PROJECT_ID
+   ./gcp/enable_services.sh
+   ./gcp/create_service_account.sh
+   ```
+5. Add the service account key to GitHub Secrets as `GCP_SA_KEY`
+6. Update `.env.local` with:
+   ```bash
+   VITE_GOOGLE_CLOUD_PROJECT=your-project-id
+   ```
 
-# Link to existing project
-supabase link --project-ref cdnalhpkmzbuneywdsth
+### Step 2: Configure GitHub Secrets
 
-# Run migrations
-supabase db push
-```
+Add these secrets to your GitHub repository (Settings > Secrets and Variables > Actions):
+
+- `GCP_PROJECT_ID` - Your Google Cloud project ID
+- `GCP_SA_KEY` - Service account JSON key (entire file content)
+- `VITE_SUPABASE_URL` - https://cdnalhpkmzbuneywdsth.supabase.co
+- `VITE_SUPABASE_ANON_KEY` - (from `.env.local`)
 
 ## 📊 Database Schema Overview
 
